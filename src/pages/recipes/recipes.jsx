@@ -9,10 +9,12 @@ export const Recipes = () => {
     const [searchParams, setSearchParams] = useSearchParams()
     const qFromUrl = searchParams.get('q') ?? ''
     const [searchValue, setSearchValue] = useState(qFromUrl)
+    const [syncedQuery, setSyncedQuery] = useState(qFromUrl)
 
-    useEffect(() => {
+    if (qFromUrl !== syncedQuery) {
+        setSyncedQuery(qFromUrl)
         setSearchValue(qFromUrl)
-    }, [qFromUrl])
+    }
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {

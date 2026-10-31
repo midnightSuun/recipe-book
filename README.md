@@ -63,6 +63,16 @@ npm run build
 
 Артефакты — в `dist/`. Для SPA на Vercel есть `vercel.json` (rewrite всех путей на `index.html`).
 
+Проверки:
+
+```bash
+npm run lint
+npm test
+npm run build
+```
+
+GitHub Actions на push и pull request запускает их в том же порядке: lint, затем сборка, затем тесты.
+
 ## Тестовый аккаунт
 
 Любой пользователь из [dummyjson.com/users](https://dummyjson.com/users), например:
