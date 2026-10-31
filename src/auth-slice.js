@@ -3,9 +3,33 @@ import { createSlice } from '@reduxjs/toolkit'
 const ACCESS_TOKEN_KEY = 'accessToken'
 const REFRESH_TOKEN_KEY = 'refreshToken'
 
+const readStoredToken = (key) => {
+    try {
+        return localStorage.getItem(key)
+    } catch {
+        return null
+    }
+}
+
+const writeStoredToken = (key, value) => {
+    try {
+        localStorage.setItem(key, value)
+    } catch {
+        // Private mode or a full quota should not break the in-memory session.
+    }
+}
+
+const removeStoredToken = (key) => {
+    try {
+        localStorage.removeItem(key)
+    } catch {
+        // Ignore storage failures; Redux state is already cleared.
+    }
+}
+
 const initialState = {
-    accessToken: localStorage.getItem(ACCESS_TOKEN_KEY),
-    refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
+    accessToken: readStoredToken(ACCESS_TOKEN_KEY),
+    refreshToken: readStoredToken(REFRESH_TOKEN_KEY),
     user: null,
 }
 
@@ -16,22 +40,26 @@ const authSlice = createSlice({
         setCredentials: (state, action) => {
             const { accessToken, refreshToken, ...user } = action.payload
 
-            state.accessToken = accessToken
-            state.refreshToken = refreshToken
+            if (typeof accessToken === 'string' && accessToken) {
+                state.accessToken = accessToken
+                writeStoredToken(ACCESS_TOKEN_KEY, accessToken)
+            }
+
+            if (typeof refreshToken === 'string' && refreshToken) {
+                state.refreshToken = refreshToken
+                writeStoredToken(REFRESH_TOKEN_KEY, refreshToken)
+            }
 
             if (user.id != null) {
                 state.user = user
             }
-
-            localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
-            localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
         },
         logOut: (state) => {
             state.accessToken = null
             state.refreshToken = null
             state.user = null
-            localStorage.removeItem(ACCESS_TOKEN_KEY)
-            localStorage.removeItem(REFRESH_TOKEN_KEY)
+            removeStoredToken(ACCESS_TOKEN_KEY)
+            removeStoredToken(REFRESH_TOKEN_KEY)
         },
     },
 })
